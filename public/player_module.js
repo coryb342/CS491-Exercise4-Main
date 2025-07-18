@@ -2,8 +2,8 @@ export async function getPlayerData(player_id) {
   try {
     const response = await fetch(`/player/${player_id}`);
     if (!response.ok) throw new Error('Could not get player data.');
-    const server_token = await response.json();
-    return server_token;
+    const player_data = await response.json();
+    return player_data;
   } catch (error) {
       console.error('Error getting player data:', error);
       throw error;
