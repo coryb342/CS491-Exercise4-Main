@@ -1,4 +1,6 @@
-import * as player_module from './playermodule.js';
+import * as player_module from './player_module.js';
+import * as gamestate_module from './gamestate_module.js';
+
 const player_id = null;
 let polling = null;
 
