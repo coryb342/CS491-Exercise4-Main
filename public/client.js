@@ -1,5 +1,5 @@
-import * as player_module from './player_module.js';
-import * as gamestate_module from './gamestate_module.js';
+import * as player from './player_module.js';
+import * as gamestate from './gamestate_module.js';
 
 const player_id = null;
 let polling = null;
@@ -12,7 +12,7 @@ let polling = null;
   * @property {Array} player_held_positions - The positions held by the player.
   * @property {string} coin_call - The call made by the player regarding the coin toss.
  */
-const player = {
+const local_player = {
     "is_previous_winner": null,
     "player_icon": null,
     "player_name": null,
