@@ -69,17 +69,20 @@ async function makeMove(position) {
       return;
     }
     const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
-    if (position.value !== "") {
+    if (player_positions.includes(index)) {
       alert('This position is already taken. Please choose another.');  
       return; 
-    } else {
-      player_positions.push(position);
-      await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
-      if (!await isWin()) {
-        await isDraw();
-      }
-      await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
     }
+
+    player_positions.push(index);
+    await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
+
+    if(!await isWin()){
+        await isDraw();
+    }
+
+    await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
+    
   } catch (error) {
       console.error('Error getting player positions:', error);
       throw error;
