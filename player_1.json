@@ -1,7 +1,6 @@
 {
-    "is_previous_winner": null,
+    "is_previous_winner": false,
     "player_icon": "O",
     "player_name": "Player 1",
-    "player_held_positions": [],
-    "coin_call": null
+    "player_held_positions": []
 }
