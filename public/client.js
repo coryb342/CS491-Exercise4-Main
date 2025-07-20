@@ -122,4 +122,27 @@ async function isDraw() {
     return false;
 }
 
+function renderBoard(){
+    const boardElement = document.getElementById('game-board');
+    boardElement.innerHTML = ''; // Clear previous board if any
 
+    let index = 0;
+    for(let row = 0; row < 4; row++){
+        const tr = document.createElement('tr');
+
+        for(let col = 0; col < 4; col++){
+            const td = document.createElement('td');
+            td.setAttribute('data-index', index);
+            td.textContent = ''; // initially empty
+            td.addEventListener('click', () => handleCellClick(index));
+            tr.appendChild(td);
+            index++;
+        }
+
+        boardElement.appendChild(tr);
+        }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderBoard();
+});
