@@ -30,6 +30,21 @@ export async function putCoinData(coin) {
     }
 }
 
+export async function resetCoinData() {
+    try {
+        const coin = {
+            "hasFlipped": false,
+            "isHeads": false,
+            "isTails": false
+        };
+        await putCoinData(coin);
+        return console.log('Coin data reset successfully.');
+    } catch (error) {
+        console.error('Error resetting coin data:', error);
+        throw error;
+    }
+}
+
 export async function getCoinAttribute(attribute) {
     try {
         const coin = await getCoinData();
@@ -86,6 +101,21 @@ export async function putGameStateData(gamestate) {
         return await response.text();
     } catch (error) {
         console.error('Error updating game state data:', error);
+        throw error;
+    }
+}
+
+export async function resetGameStateData() {
+    try {
+        const gamestate = {
+            "status": "coin_flip",
+            "isGameOver": false,
+            "currentPlayer": 1
+        };
+        await putGameStateData(gamestate);
+        return console.log('Game state data reset successfully.');
+    } catch (error) {
+        console.error('Error resetting game state data:', error);
         throw error;
     }
 }

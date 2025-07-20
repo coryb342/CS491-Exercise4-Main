@@ -28,6 +28,30 @@ export async function putPlayerData(player_id, player) {
   }
 }
 
+export async function resetPlayerData() {
+  try {
+    const player_1 = {
+      "is_previous_winner": false,
+      "player_icon": "O",
+      "player_name": "Player 1",
+      "player_held_positions": [],
+    };
+    const player_2 = {
+      "is_previous_winner": false,
+      "player_icon": "X",
+      "player_name": "Player 2",
+      "player_held_positions": [],
+    };
+    await putPlayerData(1, player_1);
+    await putPlayerData(2, player_2);
+    return console.log('Player data reset successfully.');
+
+  } catch (error) {
+    console.error('Error resetting player data:', error);
+    throw error;
+  }
+}
+
 export async function getPlayerAttribute(player_id, attribute) {
   try {
     const player = await getPlayerData(player_id);
