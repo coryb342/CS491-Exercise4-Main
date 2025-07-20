@@ -122,6 +122,31 @@ async function isDraw() {
     return false;
 }
 
+async function handleCellClick(index){
+    try {
+        const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
+        if(currentPlayer !== player_id){
+            alert("It's not your turn!");
+            return;
+        }
+
+        const cell = document.querySelector(`[data-index="${index}"]`);
+        if(cell.textContent !== ''){
+            alert("That cell is already taken!");
+            return;
+        }
+
+        // actually make the move
+        await makeMove(index);
+
+        // update UI
+        const icon = local_player.player_icon || (player_id === 1 ? 'O' : 'X');
+        cell.textContent = icon;
+    } catch (err){
+        console.error("Error handling cell click:", err);
+    }
+}
+
 function renderBoard(){
     const boardElement = document.getElementById('game-board');
     boardElement.innerHTML = ''; // Clear previous board if any
