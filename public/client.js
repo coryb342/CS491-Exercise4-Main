@@ -18,7 +18,7 @@ const winning_combinations = [
     [3, 6, 9, 12]
 ];
 
-let polling = null;
+let gamestate_polling = null;
 
 
 /**
@@ -34,6 +34,92 @@ const local_player = {
     "player_icon": null,
     "player_name": null,
     "player_held_positions": [],
-    "coin_call": null
 }
+
+// Game State Functions
+async function flipCoin() {
+    const flip = Math.random() < 0.5 ? 'heads' : 'tails';
+    if (filp === 'heads') {
+        try{
+          await gamestate.putCoinAttribute('hasFlipped', true);
+          await gamestate.putCoinAttribute('isHeads', true);
+        }
+        catch (error) {
+            console.error('Error flipping coin:', error);
+            throw error;
+        }
+    } else {
+        try {
+            await gamestate.putCoinAttribute('hasFlipped', true);
+            await gamestate.putCoinAttribute('isTails', true);
+        } catch (error) {
+            console.error('Error flipping coin:', error);
+            throw error;
+        }
+    }
+    
+    return flip;
+}
+
+async function makeMove(position) {
+  try {
+    const current_player = await gamestate.getGameStateAttribute('currentPlayer');
+    if (current_player !== player_id) {
+      alert('It is not your turn to play.');
+      return;
+    }
+    const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
+    if (position.value !== "") {
+      alert('This position is already taken. Please choose another.');  
+      return; 
+    } else {
+      player_positions.push(position);
+      await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
+      if (!await isWin()) {
+        await isDraw();
+      }
+      await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
+    }
+  } catch (error) {
+      console.error('Error getting player positions:', error);
+      throw error;
+  }
+}
+
+async function isWin() {
+    try {
+        const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
+        const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
+        for (const combination of winning_combinations) {
+            if (combination.every(index => player_positions.includes(index))) {
+                let winner = player_id === 1 ? 'Player 1' : 'Player 2';
+                await player.putPlayerAttribute(player_id, 'is_previous_winner', true);
+                await gamestate.putGameStateAttribute('isGameOver', true);
+                await gamestate.putGameStateAttribute('winner', winner);
+                return true
+            }
+        }
+    } catch (error) {
+        console.error('Error checking win:', error);
+        throw error;
+    }
+    return false;
+}
+
+async function isDraw() {
+    try {
+        const opponent_held_positions = await player.getPlayerAttribute(player_id === 1 ? 2 : 1, 'player_held_positions');
+        const player_held_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
+        if (player_held_positions.length + opponent_held_positions.length === board_size) {
+            await gamestate.putGameStateAttribute('isGameOver', true);
+            await gamestate.putGameStateAttribute('winner', 'Draw');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error checking draw:', error);
+        throw error;
+    }
+    return false;
+}
+
 
