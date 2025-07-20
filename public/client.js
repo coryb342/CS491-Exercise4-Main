@@ -82,7 +82,7 @@ async function makeMove(position) {
     }
 
     await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
-    
+
   } catch (error) {
       console.error('Error getting player positions:', error);
       throw error;
@@ -99,6 +99,12 @@ async function isWin() {
                 await player.putPlayerAttribute(player_id, 'is_previous_winner', true);
                 await gamestate.putGameStateAttribute('isGameOver', true);
                 await gamestate.putGameStateAttribute('winner', winner);
+
+                // Highlight winning cells
+                combination.forEach(index => {
+                    const cell = document.querySelector(`[data-index="${index}"]`);
+                    cell.classList.add('winner');
+                });
                 return true
             }
         }
