@@ -9,6 +9,11 @@ app.use(express.json());
 app.use(express.static('public'));
 
 //Player Endpoints
+/** Gets the player data for a specific player ID.
+ * @param {number} player_id - The ID of the player whose data is to be retrieved.
+ * @returns {Promise<Object>} - A promise that resolves to the player data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 app.get('/player/:id', (req, res) => {
   const player_id = req.params.id; // e.g., "1", "2", etc.
   const file_path = path.join(__dirname, `player_${player_id}.json`);
@@ -19,6 +24,12 @@ app.get('/player/:id', (req, res) => {
   });
 });
 
+/** Updates the player data for a specific player ID.
+ * @param {number} player_id - The ID of the player whose data is to be updated.
+ * @param {Object} player - The player data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 app.put('/player/:id', (req, res) => {
   const player_id = req.params.id;
   const updated_player_data = req.body;
@@ -33,6 +44,10 @@ app.put('/player/:id', (req, res) => {
 })
 
 //Coin Endpoints
+/** Gets the current coin data.
+ * @returns {Promise<Object>} - A promise that resolves to the coin data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 app.get('/coin', (req, res) => {
   const file_path = path.join(__dirname, 'coin.json');
   res.sendFile(file_path, err => {
@@ -42,6 +57,11 @@ app.get('/coin', (req, res) => {
   });
 });
 
+/** Updates the coin data.
+ * @param {Object} coin - The coin data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 app.put('/coin', (req, res) => {
   const updated_coin_data = req.body;
   const file_path = path.join(__dirname, 'coin.json');
@@ -55,6 +75,10 @@ app.put('/coin', (req, res) => {
 });
 
 //Game State Endpoints
+/** Gets the current game state data.
+ * @returns {Promise<Object>} - A promise that resolves to the game state data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 app.get('/gamestate', (req, res) => {
   const file_path = path.join(__dirname, 'gamestate.json');
   res.sendFile(file_path, err => {
@@ -64,6 +88,11 @@ app.get('/gamestate', (req, res) => {
   });
 });
 
+/** Updates the game state data.
+ * @param {Object} gamestate - The game state data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 app.put('/gamestate', (req, res) => {
   const updated_gamestate_data = req.body;
   const file_path = path.join(__dirname, 'gamestate.json');

@@ -1,9 +1,38 @@
 import * as player from './player_module.js';
 import * as gamestate from './gamestate_module.js';
 
+/**
+ * @typedef {Object} player
+  * @property {boolean} is_previous_winner - Indicates if the player was a previous winner.
+  * @property {string} player_icon - The icon representing the player.
+  * @property {string} player_name - The name of the player.
+  * @property {Array} player_held_positions - The positions held by the player.
+  * @requires player_module.js
+ */
+
+/**
+ * @typedef {Object} gamestate
+  * @property {string} status - The current status of the game (e.g., 'coin_flip', 'playing').
+  * @property {boolean} isGameOver - Indicates if the game is over.
+  * @property {number} currentPlayer - The ID of the current player (1 or 2).
+  * @property {string|null} winner - The winner of the game, or null if there is no winner yet.
+  * @requires gamestate_module.js
+ */
+
+/**
+ * @typedef {Object} coin
+  * @property {string|null} coin_1 - The result of the first player's coin flip, or null if not flipped.
+  * @property {string|null} coin_2 - The result of the second player's coin flip, or null if not flipped.
+  * @requires gamestate_module.js
+ */
+
 let player_id = null;
 let coin_id = null;
+
+/** @const {number} board_size - The number of spaces on the board. */ 
 const board_size = 16;
+
+/** @const {Array} winning_combinations - The winning combinations for a 4x4 board. */
 const winning_combinations = [
     [0, 1, 2, 3],
     [4, 5, 6, 7],
@@ -23,21 +52,14 @@ let gamestate_polling = null;
 let coin_polling = null;
 
 
-/**
- * @typedef {Object} Player
-  * @property {boolean} is_previous_winner - Indicates if the player was a previous winner.
-  * @property {string} player_icon - The icon representing the player.
-  * @property {string} player_name - The name of the player.
-  * @property {Array} player_held_positions - The positions held by the player.
- */
-const local_player = {
-    "is_previous_winner": null,
-    "player_icon": null,
-    "player_name": null,
-    "player_held_positions": [],
-}
 
 // Game State Functions
+
+/** 
+ * * Flips a coin for the player and determines who goes first.
+ * @returns {Promise<void>} - A promise that resolves when the coin flip is complete.
+ * @throws {Error} - If there is an error during the coin flip process.
+ */
 async function flipCoin() {
     const flip = Math.random() < 0.5 ? 'heads' : 'tails';
 
@@ -68,6 +90,11 @@ async function flipCoin() {
     }
 }
 
+/** 
+ * * Monitors the coin flips and determines which player goes first.
+ * @returns {Promise<void>}
+ * @throws {Error} - If there is an error during the monitoring process.
+ */
 async function monitorCoinFlips() {
     try {
         const coin_1_result = await gamestate.getCoinAttribute('coin_1');
@@ -102,7 +129,13 @@ async function monitorCoinFlips() {
         throw error;
     }
 }
-        
+
+/**
+ * Makes a move for the player in the game.
+ * @param {number} index - The index of the position on the board where the player wants to make a move.
+ * @returns {Promise<void>} - A promise that resolves when the move is made.
+ * @throws {Error} - If there is an error during the move process.
+ */
 async function makeMove(position) {
   try {
     const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
@@ -126,6 +159,10 @@ async function makeMove(position) {
   }
 }
 
+/** * Checks if the current player has won the game.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the player has won, false otherwise.
+ * @throws {Error} - If there is an error during the win check process.
+ */
 async function isWin() {
     try {
         const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
@@ -152,6 +189,10 @@ async function isWin() {
     return false;
 }
 
+/** * Checks if the game is a draw.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the game is a draw, false otherwise.
+ * @throws {Error} - If there is an error during the draw check process.
+ */
 async function isDraw() {
     try {
         const opponent_held_positions = await player.getPlayerAttribute(player_id === 1 ? 2 : 1, 'player_held_positions');
@@ -168,6 +209,9 @@ async function isDraw() {
     return false;
 }
 
+/**
+ * Resetes the gamestate, player and coin data on window close
+ */
 addEventListener('beforeunload', async (event) => {
     try {
         await player.resetPlayerData();
@@ -181,6 +225,11 @@ addEventListener('beforeunload', async (event) => {
 
 
 // UI Functions
+/** * Handles the click event on a cell in the game board.
+ * @param {number} index - The index of the cell that was clicked.
+ * @returns {Promise<void>} - A promise that resolves when the cell click is handled.
+ * @throws {Error} - If there is an error during the cell click handling process.
+ */
 async function handleCellClick(index){
     try {
         const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
@@ -206,6 +255,10 @@ async function handleCellClick(index){
     }
 }
 
+/** * Renders the game board in the UI.
+ * @returns {void} - No return value.
+ * @throws {Error} - If there is an error during the rendering process.
+ */
 function renderBoard(){
     const boardElement = document.getElementById('game-board');
     boardElement.innerHTML = ''; // Clear previous board if any

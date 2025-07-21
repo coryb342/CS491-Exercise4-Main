@@ -1,4 +1,9 @@
 //Coin Functions
+/**
+ * Gets the current coin data.
+ * * @returns {Promise<Object>} - A promise that resolves to the coin data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getCoinData() {
     try {
         const response = await fetch('/coin');
@@ -12,6 +17,11 @@ export async function getCoinData() {
     }
 }
 
+/** * Updates the coin data.
+ * @param {Object} coin - The coin data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putCoinData(coin) {
     try {
         const response = await fetch('/coin', {
@@ -30,6 +40,10 @@ export async function putCoinData(coin) {
     }
 }
 
+/** * Resets the coin data.
+ * @returns {Promise<void>} - A promise that resolves when the coin data is reset.
+ * @throws {Error} - If there is an error during the reset process.
+ */
 export async function resetCoinData() {
     try {
         const coin = {
@@ -44,6 +58,11 @@ export async function resetCoinData() {
     }
 }
 
+/** * Gets a specific attribute from the coin data.
+ * @param {string} attribute - The attribute to retrieve from the coin data.
+ * @returns {Promise<any>} - A promise that resolves to the value of the specified attribute.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getCoinAttribute(attribute) {
     try {
         const coin = await getCoinData();
@@ -58,6 +77,12 @@ export async function getCoinAttribute(attribute) {
     }
 }
 
+/** * Updates a specific attribute in the coin data.
+ * @param {string} attribute - The attribute to update in the coin data.
+ * @param {any} value - The new value for the specified attribute.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putCoinAttribute(attribute, value) {
     try {
         const coin = await getCoinData();
@@ -74,6 +99,10 @@ export async function putCoinAttribute(attribute, value) {
 }   
 
 //Game State Functions
+/** Gets the current game state data.
+ * @returns {Promise<Object>} - A promise that resolves to the game state data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getGameStateData() {
     try {
         const response = await fetch('/gamestate');
@@ -86,6 +115,11 @@ export async function getGameStateData() {
     }
 }
 
+/** Updates the game state data.
+ * @param {Object} gamestate - The game state data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putGameStateData(gamestate) {
     try {
         const response = await fetch('/gamestate', {
@@ -104,6 +138,10 @@ export async function putGameStateData(gamestate) {
     }
 }
 
+/** Resets the game state data.
+ * @returns {Promise<void>} - A promise that resolves when the game state data is reset.
+ * @throws {Error} - If there is an error during the reset process.
+ */
 export async function resetGameStateData() {
     try {
         const gamestate = {
@@ -119,6 +157,11 @@ export async function resetGameStateData() {
     }
 }
 
+/** Gets a specific attribute from the game state data.
+ * @param {string} attribute - The attribute to retrieve from the game state data.
+ * @returns {Promise<any>} - A promise that resolves to the value of the specified attribute.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getGameStateAttribute(attribute) {
     try {
         const gamestate = await getGameStateData();
@@ -133,6 +176,12 @@ export async function getGameStateAttribute(attribute) {
     }
 }
 
+/** Updates a specific attribute in the game state data.
+ * @param {string} attribute - The attribute to update in the game state data.
+ * @param {any} value - The new value for the specified attribute.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putGameStateAttribute(attribute, value) {
     try {
         const gamestate = await getGameStateData();

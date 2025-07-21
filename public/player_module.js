@@ -1,3 +1,9 @@
+/**
+ * Gets the player data for a specific player ID.
+ * @param {number} player_id - The ID of the player whose data is to be retrieved.
+ * @returns {Promise<Object>} - A promise that resolves to the player data.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getPlayerData(player_id) {
   try {
     const response = await fetch(`/player/${player_id}`);
@@ -10,6 +16,12 @@ export async function getPlayerData(player_id) {
   }
 }
 
+/** * Updates the player data for a specific player ID.
+ * @param {number} player_id - The ID of the player whose data is to be updated.
+ * @param {Object} player - The player data to update.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putPlayerData(player_id, player) {
   try {
     const response = await fetch(`/player/${player_id}`, {
@@ -28,6 +40,10 @@ export async function putPlayerData(player_id, player) {
   }
 }
 
+/** * Resets the player data for both players.
+ * @returns {Promise<void>} - A promise that resolves when the player data is reset.
+ * @throws {Error} - If there is an error during the reset process.
+ */
 export async function resetPlayerData() {
   try {
     const player_1 = {
@@ -52,6 +68,12 @@ export async function resetPlayerData() {
   }
 }
 
+/** * Gets a specific attribute from the player data.
+ * @param {number} player_id - The ID of the player whose attribute is to be retrieved.
+ * @param {string} attribute - The attribute to retrieve from the player data.
+ * @returns {Promise<any>} - A promise that resolves to the value of the requested attribute.
+ * @throws {Error} - If there is an error during the retrieval process.
+ */
 export async function getPlayerAttribute(player_id, attribute) {
   try {
     const player = await getPlayerData(player_id);
@@ -66,6 +88,13 @@ export async function getPlayerAttribute(player_id, attribute) {
   }
 }
 
+/** * Updates a specific attribute in the player data.
+ * @param {number} player_id - The ID of the player whose attribute is to be updated.
+ * @param {string} attribute - The attribute to update in the player data.
+ * @param {any} value - The new value for the specified attribute.
+ * @returns {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the update process.
+ */
 export async function putPlayerAttribute(player_id, attribute, value) {
   try {
     const player = await getPlayerData(player_id);
