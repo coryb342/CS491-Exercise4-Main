@@ -27,7 +27,6 @@ let gamestate_polling = null;
   * @property {string} player_icon - The icon representing the player.
   * @property {string} player_name - The name of the player.
   * @property {Array} player_held_positions - The positions held by the player.
-  * @property {string} coin_call - The call made by the player regarding the coin toss.
  */
 const local_player = {
     "is_previous_winner": null,
@@ -39,7 +38,7 @@ const local_player = {
 // Game State Functions
 async function flipCoin() {
     const flip = Math.random() < 0.5 ? 'heads' : 'tails';
-    if (filp === 'heads') {
+    if (flip === 'heads') {
         try{
           await gamestate.putCoinAttribute('hasFlipped', true);
           await gamestate.putCoinAttribute('isHeads', true);
