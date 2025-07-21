@@ -104,29 +104,7 @@ async function monitorCoinFlips() {
 }
         
 async function makeMove(position) {
-    try {
-      const current_player = await gamestate.getGameStateAttribute('currentPlayer');
-      if (current_player !== player_id) {
-        alert('It is not your turn to play.');
-        return;
-      }
-      const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
-      if (position.value !== "") {
-        alert('This position is already taken. Please choose another.');  
-        return; 
-      } else {
-        player_positions.push(position);
-        await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
-        if (!await isWin()) {
-          await isDraw();
-        }
-        await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
-      }
-    } catch (error) {
-        console.error('Error getting player positions:', error);
-        throw error;
-    }
-  
+  try {
     const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
     if (player_positions.includes(index)) {
       alert('This position is already taken. Please choose another.');  
@@ -201,6 +179,8 @@ addEventListener('beforeunload', async (event) => {
     }
 });
 
+
+// UI Functions
 async function handleCellClick(index){
     try {
         const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
