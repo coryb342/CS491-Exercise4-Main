@@ -126,6 +126,26 @@ async function makeMove(position) {
         console.error('Error getting player positions:', error);
         throw error;
     }
+  
+    const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
+    if (player_positions.includes(index)) {
+      alert('This position is already taken. Please choose another.');  
+      return; 
+    }
+
+    player_positions.push(index);
+    await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
+
+    if(!await isWin()){
+        await isDraw();
+    }
+
+    await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
+
+  } catch (error) {
+      console.error('Error getting player positions:', error);
+      throw error;
+  }
 }
 
 async function isWin() {
@@ -138,6 +158,12 @@ async function isWin() {
                 await player.putPlayerAttribute(player_id, 'is_previous_winner', true);
                 await gamestate.putGameStateAttribute('isGameOver', true);
                 await gamestate.putGameStateAttribute('winner', winner);
+
+                // Highlight winning cells
+                combination.forEach(index => {
+                    const cell = document.querySelector(`[data-index="${index}"]`);
+                    cell.classList.add('winner');
+                });
                 return true
             }
         }
@@ -164,4 +190,64 @@ async function isDraw() {
     return false;
 }
 
+addEventListener('beforeunload', async (event) => {
+    try {
+        await player.resetPlayerData();
+        await gamestate.resetGameStateData();
+        await gamestate.resetCoinData();
+        console.log('Game state and player data reset successfully.');  
+    } catch (error) {
+        console.error('Error resetting game state and player data:', error);
+    }
+});
+
+async function handleCellClick(index){
+    try {
+        const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
+        if(currentPlayer !== player_id){
+            alert("It's not your turn!");
+            return;
+        }
+
+        const cell = document.querySelector(`[data-index="${index}"]`);
+        if(cell.textContent !== ''){
+            alert("That cell is already taken!");
+            return;
+        }
+
+        // actually make the move
+        await makeMove(index);
+
+        // update UI
+        const icon = local_player.player_icon || (player_id === 1 ? 'O' : 'X');
+        cell.textContent = icon;
+    } catch (err){
+        console.error("Error handling cell click:", err);
+    }
+}
+
+function renderBoard(){
+    const boardElement = document.getElementById('game-board');
+    boardElement.innerHTML = ''; // Clear previous board if any
+
+    let index = 0;
+    for(let row = 0; row < 4; row++){
+        const tr = document.createElement('tr');
+
+        for(let col = 0; col < 4; col++){
+            const td = document.createElement('td');
+            td.setAttribute('data-index', index);
+            td.textContent = ''; // initially empty
+            td.addEventListener('click', () => handleCellClick(index));
+            tr.appendChild(td);
+            index++;
+        }
+
+        boardElement.appendChild(tr);
+        }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderBoard();
+});
 
