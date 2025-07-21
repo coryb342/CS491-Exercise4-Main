@@ -121,4 +121,13 @@ async function isDraw() {
     return false;
 }
 
-
+addEventListener('beforeunload', async (event) => {
+    try {
+        await player.resetPlayerData();
+        await gamestate.resetGameStateData();
+        await gamestate.resetCoinData();
+        console.log('Game state and player data reset successfully.');  
+    } catch (error) {
+        console.error('Error resetting game state and player data:', error);
+    }
+});
