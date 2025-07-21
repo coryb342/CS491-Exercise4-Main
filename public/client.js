@@ -130,6 +130,17 @@ async function isDraw() {
     return false;
 }
 
+addEventListener('beforeunload', async (event) => {
+    try {
+        await player.resetPlayerData();
+        await gamestate.resetGameStateData();
+        await gamestate.resetCoinData();
+        console.log('Game state and player data reset successfully.');  
+    } catch (error) {
+        console.error('Error resetting game state and player data:', error);
+    }
+});
+
 async function handleCellClick(index){
     try {
         const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
@@ -179,3 +190,4 @@ function renderBoard(){
 document.addEventListener('DOMContentLoaded', () => {
     renderBoard();
 });
+
