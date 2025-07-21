@@ -3,8 +3,18 @@
     <head>
         <title>Connect Four</title>
         <script type="module" src="client.js" defer></script>
+        <style>
+            td.winner {
+                color: red;
+                font-weight: bold;
+            }
+        </style>
     </head>
 
     <body>
+        <div id="game">
+            <table id="game-board"></table>
+        </div>
+        <button id="control-button">Flip</button>
     </body>
 </html>
