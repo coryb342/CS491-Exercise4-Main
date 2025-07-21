@@ -1,7 +1,8 @@
 import * as player from './player_module.js';
 import * as gamestate from './gamestate_module.js';
 
-const player_id = null;
+let player_id = null;
+let coin_id = null;
 const board_size = 16;
 const winning_combinations = [
     [0, 1, 2, 3],
@@ -19,6 +20,7 @@ const winning_combinations = [
 ];
 
 let gamestate_polling = null;
+let coin_polling = null;
 
 
 /**
@@ -38,51 +40,92 @@ const local_player = {
 // Game State Functions
 async function flipCoin() {
     const flip = Math.random() < 0.5 ? 'heads' : 'tails';
-    if (flip === 'heads') {
-        try{
-          await gamestate.putCoinAttribute('hasFlipped', true);
-          await gamestate.putCoinAttribute('isHeads', true);
+
+    try {
+        const coin_1_result = await gamestate.getCoinAttribute('coin_1');
+        const coin_2_result = await gamestate.getCoinAttribute('coin_2');
+
+        if (coin_1_result === null) {
+            await gamestate.putCoinAttribute('coin_1', flip);
+            coin_id = 1;
+            console.log(`Coin 1 flipped: ${flip}`);
+        } else if (coin_2_result === null) {
+            await gamestate.putCoinAttribute('coin_2', flip);
+            coin_id = 2;
+            console.log(`Coin 2 flipped: ${flip}`);
+        } else {
+            console.log("Both players have already flipped.");
+            return;
         }
-        catch (error) {
-            console.error('Error flipping coin:', error);
-            throw error;
+
+        if (!coin_polling) {
+            coin_polling = setInterval(monitorCoinFlips, 1000);
         }
-    } else {
-        try {
-            await gamestate.putCoinAttribute('hasFlipped', true);
-            await gamestate.putCoinAttribute('isTails', true);
-        } catch (error) {
-            console.error('Error flipping coin:', error);
-            throw error;
-        }
+
+    } catch (error) {
+        console.error('Error flipping coin:', error);
+        throw error;
     }
-    
-    return flip;
 }
 
+async function monitorCoinFlips() {
+    try {
+        const coin_1_result = await gamestate.getCoinAttribute('coin_1');
+        const coin_2_result = await gamestate.getCoinAttribute('coin_2');
+
+        if (coin_1_result === null || coin_2_result === null) {
+        }
+
+        if (coin_1_result === coin_2_result) {
+            console.log(`Both players flipped ${coin_1_result}. Reflipping...`);
+            await gamestate.resetCoinData();
+            clearInterval(coin_polling);
+            coin_polling = null;
+            return;
+        }
+
+        if ((coin_1_result === 'heads' && coin_id === 1) || 
+            (coin_2_result === 'heads' && coin_id === 2)) {
+            player_id = coin_id;
+            console.log(`You (${player_id}) go first!`);
+        } else {
+            player_id = coin_id === 1 ? 2 : 1;
+            console.log(`Opponent (${player_id}) goes first.`);
+        }
+
+        await gamestate.putGameStateAttribute('status', 'playing');
+        clearInterval(coin_polling);
+        coin_polling = null;
+
+    } catch (error) {
+        console.error('Error monitoring coin flips:', error);
+        throw error;
+    }
+}
+        
 async function makeMove(position) {
-  try {
-    const current_player = await gamestate.getGameStateAttribute('currentPlayer');
-    if (current_player !== player_id) {
-      alert('It is not your turn to play.');
-      return;
-    }
-    const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
-    if (position.value !== "") {
-      alert('This position is already taken. Please choose another.');  
-      return; 
-    } else {
-      player_positions.push(position);
-      await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
-      if (!await isWin()) {
-        await isDraw();
+    try {
+      const current_player = await gamestate.getGameStateAttribute('currentPlayer');
+      if (current_player !== player_id) {
+        alert('It is not your turn to play.');
+        return;
       }
-      await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
+      const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
+      if (position.value !== "") {
+        alert('This position is already taken. Please choose another.');  
+        return; 
+      } else {
+        player_positions.push(position);
+        await player.putPlayerAttribute(player_id, 'player_held_positions', player_positions);
+        if (!await isWin()) {
+          await isDraw();
+        }
+        await gamestate.putGameStateAttribute('currentPlayer', player_id === 1 ? 2 : 1);
+      }
+    } catch (error) {
+        console.error('Error getting player positions:', error);
+        throw error;
     }
-  } catch (error) {
-      console.error('Error getting player positions:', error);
-      throw error;
-  }
 }
 
 async function isWin() {
