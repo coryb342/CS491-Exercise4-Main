@@ -1,5 +1,4 @@
 {
-    "hasFlipped": false,
-    "isHeads": false,
-    "isTails": false
+    "coin_1": null,
+    "coin_2": null
 }

@@ -33,9 +33,8 @@ export async function putCoinData(coin) {
 export async function resetCoinData() {
     try {
         const coin = {
-            "hasFlipped": false,
-            "isHeads": false,
-            "isTails": false
+            "coin_1": null,
+            "coin_2": null
         };
         await putCoinData(coin);
         return console.log('Coin data reset successfully.');
