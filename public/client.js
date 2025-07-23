@@ -32,6 +32,8 @@ let coin_id = null;
 /** @const {number} board_size - The number of spaces on the board. */ 
 const board_size = 16;
 
+const control_button = document.getElementById('control-button');
+
 /** @const {Array} winning_combinations - The winning combinations for a 4x4 board. */
 const winning_combinations = [
     [0, 1, 2, 3],
@@ -120,7 +122,7 @@ async function monitorCoinFlips() {
             console.log(`Opponent (${player_id}) goes first.`);
         }
 
-        await gamestate.putGameStateAttribute('status', 'playing');
+        await gamestate.putGameStateAttribute('status', 'ready');
         clearInterval(coin_polling);
         coin_polling = null;
 
@@ -136,7 +138,7 @@ async function monitorCoinFlips() {
  * @returns {Promise<void>} - A promise that resolves when the move is made.
  * @throws {Error} - If there is an error during the move process.
  */
-async function makeMove(position) {
+async function makeMove(index) {
   try {
     const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
     if (player_positions.includes(index)) {
@@ -209,6 +211,47 @@ async function isDraw() {
     return false;
 }
 
+async function handleGameState() {
+    try {
+        const current_status = await gamestate.getGameStateAttribute('status');
+        const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
+        const winner = await gamestate.getGameStateAttribute('winner');
+        if (is_game_over) {
+            control_button.textContent = 'Clear';
+            if (winner === 'Draw') {
+                alert('Game Over! It\'s a draw!');
+            } else {
+                alert(`Game Over! ${winner} wins!`);
+            }
+            return;
+        }
+
+        if (current_status === 'coin_flip') {
+          control_button.textContent = 'Flip';
+          return;
+        }
+
+        if (current_status === 'playing') {
+            control_button.textContent = 'Clear';
+            return;
+        }
+
+        if (current_status === 'ready') {
+            control_button.textContent = 'Start';
+            const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
+            if (currentPlayer === player_id) {
+                control_button.disabled = false;
+            } else {
+                control_button.disabled = true;
+            }
+            return;
+        }
+    } catch (error) {
+        console.error('Error handling game state:', error);
+        throw error;
+    }
+}
+
 /**
  * Resetes the gamestate, player and coin data on window close
  */
@@ -259,7 +302,7 @@ async function handleCellClick(index){
  * @returns {void} - No return value.
  * @throws {Error} - If there is an error during the rendering process.
  */
-function renderBoard(){
+function renderEmptyBoard(){
     const boardElement = document.getElementById('game-board');
     boardElement.innerHTML = ''; // Clear previous board if any
 
@@ -281,6 +324,6 @@ function renderBoard(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderBoard();
+    renderEmptyBoard();
 });
 
