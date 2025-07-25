@@ -354,6 +354,11 @@ async function handleCellClick(index){
  */
 function renderEmptyBoard(){
     const boardElement = document.getElementById('game-board');
+
+    if (!boardElement) {
+        console.error('Game board element not found.');
+        return;
+    }
     boardElement.innerHTML = ''; // Clear previous board if any
 
     let index = 0;
@@ -382,6 +387,11 @@ async function renderCurrentBoard(){
     const player_2_positions = await player.getPlayerAttribute(2, 'player_held_positions');
 
     const boardElement = document.getElementById('game-board');
+
+    if (!boardElement) {
+        console.error('Game board element not found.');
+        return;
+    }
     boardElement.innerHTML = ''; // Clear previous board if any
 
     let index = 0;
