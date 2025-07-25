@@ -1,3 +1,7 @@
+// Authors: Cory Bateman and Kaylyn Duncan
+// Due Date: 7/30/25
+// CS491-Exercise 4 Main index.js
+
 const express = require('express')
 const path = require('path')
 const fs = require('fs')

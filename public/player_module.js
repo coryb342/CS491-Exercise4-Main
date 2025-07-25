@@ -1,3 +1,7 @@
+// Authors: Cory Bateman and Kaylyn Duncan
+// Due Date: 7/30/25
+// CS491-Exercise 4 Main player_module.js
+
 /**
  * Gets the player data for a specific player ID.
  * @param {number} player_id - The ID of the player whose data is to be retrieved.

@@ -1,3 +1,7 @@
+// Authors: Cory Bateman and Kaylyn Duncan
+// Due Date: 7/30/25
+// CS491-Exercise 4 Main client.js
+
 import * as player from './player_module.js';
 import * as gamestate from './gamestate_module.js';
 
