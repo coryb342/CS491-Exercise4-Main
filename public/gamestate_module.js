@@ -151,7 +151,8 @@ export async function resetGameStateData() {
         const gamestate = {
             "status": "coin_flip",
             "isGameOver": false,
-            "currentPlayer": 1
+            "currentPlayer": 1,
+            "winner": ""
         };
         await putGameStateData(gamestate);
         return console.log('Game state data reset successfully.');

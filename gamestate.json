@@ -2,5 +2,5 @@
     "status": "coin_flip",
     "isGameOver": false,
     "currentPlayer": 1,
-    "winner": null
+    "winner": ""
 }
