@@ -1,3 +1,7 @@
+// Authors: Cory Bateman and Kaylyn Duncan
+// Due Date: 7/30/25
+// CS491-Exercise 4 Main gamestate_module.js
+
 //Coin Functions
 /**
  * Gets the current coin data.
