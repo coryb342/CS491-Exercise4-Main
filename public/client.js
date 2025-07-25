@@ -330,8 +330,9 @@ async function handleCellClick(index){
             alert("It's not your turn!");
             return;
         }
-
+        console.log(`Cell ${index} clicked by player ${player_id}`);
         const cell = document.querySelector(`[data-index="${index}"]`);
+
         if(cell.textContent !== ''){
             alert("That cell is already taken!");
             return;
@@ -340,9 +341,6 @@ async function handleCellClick(index){
         // actually make the move
         await makeMove(index);
 
-        // update UI
-        const icon = local_player.player_icon || (player_id === 1 ? 'O' : 'X');
-        cell.textContent = icon;
     } catch (err){
         console.error("Error handling cell click:", err);
     }
@@ -369,7 +367,7 @@ function renderEmptyBoard(){
             const td = document.createElement('td');
             td.setAttribute('data-index', index);
             td.textContent = ''; // initially empty
-            td.addEventListener('click', () => handleCellClick(index));
+            td.addEventListener('click', () => handleCellClick(td.getAttribute('data-index')));
             tr.appendChild(td);
             index++;
         }
@@ -402,14 +400,14 @@ async function renderCurrentBoard(){
             const td = document.createElement('td');
             td.setAttribute('data-index', index);
 
-            if(player_1_positions.includes(index)){
+            if(player_1_positions.includes(String(index))){
                 td.textContent = await player.getPlayerAttribute(1, 'player_icon');
-            } else if(player_2_positions.includes(index)){
+            } else if(player_2_positions.includes(String(index))){
                 td.textContent = await player.getPlayerAttribute(2, 'player_icon');
             } else {
                 td.textContent = ''; // empty cell
             }
-            td.addEventListener('click', () => handleCellClick(index));
+            td.addEventListener('click', () => handleCellClick(td.getAttribute('data-index')));
             tr.appendChild(td);
             index++;
         }
