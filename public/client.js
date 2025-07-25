@@ -217,13 +217,14 @@ async function handleGameState() {
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         const winner = await gamestate.getGameStateAttribute('winner');
         if (is_game_over) {
-            control_button.textContent = 'Clear';
-            if (winner === 'Draw') {
-                alert('Game Over! It\'s a draw!');
-            } else {
-                alert(`Game Over! ${winner} wins!`);
-            }
-            return;
+          renderCurrentBoard();
+          control_button.textContent = 'Clear';
+          if (winner === 'Draw') {
+              alert('Game Over! It\'s a draw!');
+          } else {
+              alert(`Game Over! ${winner} wins!`);
+          }
+          return;
         }
 
         if (current_status === 'coin_flip') {
@@ -232,9 +233,10 @@ async function handleGameState() {
         }
 
         if (current_status === 'playing') {
+            renderCurrentBoard();
             control_button.textContent = 'Clear';
             return;
-        }
+        } 
 
         if (current_status === 'ready') {
             control_button.textContent = 'Start';
@@ -359,7 +361,44 @@ function renderEmptyBoard(){
         }
 }
 
+async function renderCurrentBoard(){
+  try {
+    const player_1_positions = await player.getPlayerAttribute(1, 'player_held_positions');
+    const player_2_positions = await player.getPlayerAttribute(2, 'player_held_positions');
+
+    const boardElement = document.getElementById('game-board');
+    boardElement.innerHTML = ''; // Clear previous board if any
+
+    let index = 0;
+    for(let row = 0; row < 4; row++){
+        const tr = document.createElement('tr');
+
+        for(let col = 0; col < 4; col++){
+            const td = document.createElement('td');
+            td.setAttribute('data-index', index);
+
+            if(player_1_positions.includes(index)){
+                td.textContent = await player.getPlayerAttribute(1, 'player_icon');
+            } else if(player_2_positions.includes(index)){
+                td.textContent = await player.getPlayerAttribute(2, 'player_icon');
+            } else {
+                td.textContent = ''; // empty cell
+            }
+            td.addEventListener('click', () => handleCellClick(index));
+            tr.appendChild(td);
+            index++;
+        }
+
+        boardElement.appendChild(tr);
+        }
+  } catch (error) {
+    console.error('Error rendering current board:', error);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     renderEmptyBoard();
+    gamestate_polling = setInterval(handleGameState, 1000);
+    console.log('Game state polling started.');
 });
 
