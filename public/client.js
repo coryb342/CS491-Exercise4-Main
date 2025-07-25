@@ -107,6 +107,7 @@ async function monitorCoinFlips() {
         const coin_2_result = await gamestate.getCoinAttribute('coin_2');
 
         if (coin_1_result === null || coin_2_result === null) {
+          return;
         }
 
         if (coin_1_result === coin_2_result) {
