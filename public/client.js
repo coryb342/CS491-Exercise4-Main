@@ -111,6 +111,7 @@ async function monitorCoinFlips() {
 
         if (coin_1_result === coin_2_result) {
             console.log(`Both players flipped ${coin_1_result}. Reflipping...`);
+            alert(`Both players flipped ${coin_1_result}. Reflip`);
             await gamestate.resetCoinData();
             clearInterval(coin_polling);
             coin_polling = null;
@@ -241,6 +242,7 @@ async function handleGameState() {
         if (current_status === 'playing') {
             renderCurrentBoard();
             control_button.textContent = 'Clear';
+            control_button.disabled = false;
             return;
         } 
 
