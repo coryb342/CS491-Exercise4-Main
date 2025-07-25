@@ -54,7 +54,6 @@ const winning_combinations = [
     [3, 6, 9, 12]
 ];
 
-let gamestate_polling = null;
 let coin_polling = null;
 
 
@@ -293,7 +292,10 @@ async function replayAfterWin() {
     }
 }
 
-control_button.addEventListener('click', handleControlButtonClick(control_button.textContent));
+control_button.addEventListener('click', (event) => {
+    handleControlButtonClick(event.target.textContent);
+});
+
 
 /**
  * Resetes the gamestate, player and coin data on window close
@@ -403,7 +405,7 @@ async function renderCurrentBoard(){
 
 document.addEventListener('DOMContentLoaded', () => {
     renderEmptyBoard();
-    gamestate_polling = setInterval(handleGameState, 1000);
+    let gamestate_polling = setInterval(handleGameState, 1000);
     console.log('Game state polling started.');
 });
 
