@@ -119,16 +119,18 @@ async function monitorCoinFlips() {
 
         if ((coin_1_result === 'heads' && coin_id === 1) || 
             (coin_2_result === 'heads' && coin_id === 2)) {
-            player_id = coin_id;
-            console.log(`You (${player_id}) go first!`);
+            player_id = 1;
+            console.log(`You go first!`);
+            alert('You go first!');
         } else {
-            player_id = coin_id === 1 ? 2 : 1;
-            console.log(`Opponent (${player_id}) goes first.`);
+            player_id = 2;
+            console.log(`Opponent goes first!`);
+            alert('Opponent goes first!');
         }
 
-        await gamestate.putGameStateAttribute('status', 'ready');
         clearInterval(coin_polling);
         coin_polling = null;
+        await gamestate.putGameStateAttribute('status', 'ready');
 
     } catch (error) {
         console.error('Error monitoring coin flips:', error);
@@ -282,6 +284,7 @@ async function replayAfterWin() {
     try {
         const is_previous_winner = await player.getPlayerAttribute(player_id, 'is_previous_winner');
         is_previous_winner ? player_id = 1 : player_id = 2;
+        player_id = 1 ? alert('Since you won, you get to go first.') : alert('Since you lost, your opponent goes first.');
         await player.resetPlayerData();
         await gamestate.resetGameStateData();
         await gamestate.resetCoinData();
