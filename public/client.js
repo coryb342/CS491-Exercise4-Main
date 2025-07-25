@@ -252,6 +252,42 @@ async function handleGameState() {
     }
 }
 
+async function handleControlButtonClick(button_value) {
+    try {
+        const winner = await gamestate.getGameStateAttribute('winner');
+        if (button_value === 'Flip') {
+            await flipCoin();
+        } else if (button_value === 'Start') {
+            await gamestate.putGameStateAttribute('status', 'playing');
+        } else if (button_value === 'Clear' && (winner === null || winner === 'Draw')) {
+            await player.resetPlayerData();
+            await gamestate.resetGameStateData();
+            await gamestate.resetCoinData();
+            renderEmptyBoard();
+        } else if (button_value === 'Clear' && (winner !== null && winner !== 'Draw')) {
+            replayAfterWin();
+        }
+    } catch (error) {
+        console.error('Error handling control button click:', error);
+    }
+}
+
+async function replayAfterWin() {
+    try {
+        const is_previous_winner = await player.getPlayerAttribute(player_id, 'is_previous_winner');
+        is_previous_winner ? player_id = 1 : player_id = 2;
+        await player.resetPlayerData();
+        await gamestate.resetGameStateData();
+        await gamestate.resetCoinData();
+        renderEmptyBoard();
+        gamestate.setAttribute('status', 'ready');
+    } catch (error) {
+        console.error('Error resetting game state and player data:', error);
+    }
+}
+
+control_button.addEventListener('click', handleControlButtonClick(control_button.textContent));
+
 /**
  * Resetes the gamestate, player and coin data on window close
  */
