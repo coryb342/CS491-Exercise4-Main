@@ -55,6 +55,7 @@ const winning_combinations = [
 ];
 
 let coin_polling = null;
+let gamestate_polling = null;
 
 
 
@@ -76,10 +77,12 @@ async function flipCoin() {
             await gamestate.putCoinAttribute('coin_1', flip);
             coin_id = 1;
             console.log(`Coin 1 flipped: ${flip}`);
+            control_button.disabled = true;
         } else if (coin_2_result === null) {
             await gamestate.putCoinAttribute('coin_2', flip);
             coin_id = 2;
             console.log(`Coin 2 flipped: ${flip}`);
+            control_button.disabled = true;
         } else {
             console.log("Both players have already flipped.");
             return;
@@ -110,8 +113,8 @@ async function monitorCoinFlips() {
         }
 
         if (coin_1_result === coin_2_result) {
-            console.log(`Both players flipped ${coin_1_result}. Reflipping...`);
             alert(`Both players flipped ${coin_1_result}. Reflip`);
+            console.log(`Both players flipped ${coin_1_result}. Reflipping...`);
             await gamestate.resetCoinData();
             clearInterval(coin_polling);
             coin_polling = null;
@@ -131,6 +134,7 @@ async function monitorCoinFlips() {
 
         clearInterval(coin_polling);
         coin_polling = null;
+        control_button.disabled = false;
         await gamestate.putGameStateAttribute('status', 'ready');
 
     } catch (error) {
@@ -177,7 +181,7 @@ async function isWin() {
         const player_positions = await player.getPlayerAttribute(player_id, 'player_held_positions');
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         for (const combination of winning_combinations) {
-            if (combination.every(index => player_positions.includes(index))) {
+            if (combination.every(index => player_positions.includes(String(index)))) {
                 let winner = player_id === 1 ? 'Player 1' : 'Player 2';
                 await player.putPlayerAttribute(player_id, 'is_previous_winner', true);
                 await gamestate.putGameStateAttribute('isGameOver', true);
@@ -225,6 +229,7 @@ async function handleGameState() {
         const winner = await gamestate.getGameStateAttribute('winner');
         if (is_game_over) {
           renderCurrentBoard();
+          clearInterval(gamestate_polling);
           control_button.textContent = 'Clear';
           if (winner === 'Draw') {
               alert('Game Over! It\'s a draw!');
@@ -235,6 +240,11 @@ async function handleGameState() {
         }
 
         if (current_status === 'coin_flip') {
+          let coin_1_result = await gamestate.getCoinAttribute('coin_1');
+          let coin_2_result = await gamestate.getCoinAttribute('coin_2');
+          if (coin_1_result === null && coin_2_result === null) {
+            control_button.disabled = false;
+          }
           control_button.textContent = 'Flip';
           return;
         }
@@ -273,6 +283,7 @@ async function handleControlButtonClick(button_value) {
             await player.resetPlayerData();
             await gamestate.resetGameStateData();
             await gamestate.resetCoinData();
+            gamestate_polling = setInterval(handleGameState, 1000);
             renderEmptyBoard();
         } else if (button_value === 'Clear' && (winner !== "" && winner !== 'Draw')) {
             replayAfterWin();
@@ -291,6 +302,7 @@ async function replayAfterWin() {
         await gamestate.resetGameStateData();
         await gamestate.resetCoinData();
         renderEmptyBoard();
+        gamestate_polling = setInterval(handleGameState, 1000);
         gamestate.putGameStateAttribute('status', 'ready');
     } catch (error) {
         console.error('Error resetting game state and player data:', error);
@@ -421,7 +433,7 @@ async function renderCurrentBoard(){
 
 document.addEventListener('DOMContentLoaded', () => {
     renderEmptyBoard();
-    let gamestate_polling = setInterval(handleGameState, 1000);
+    gamestate_polling = setInterval(handleGameState, 1000);
     console.log('Game state polling started.');
 });
 
