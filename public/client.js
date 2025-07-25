@@ -365,7 +365,10 @@ function renderEmptyBoard(){
         }
 
         boardElement.appendChild(tr);
-        }
+    }
+
+    console.log('Empty board rendered successfully.');
+
 }
 
 async function renderCurrentBoard(){
