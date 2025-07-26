@@ -125,12 +125,8 @@ async function monitorCoinFlips() {
         if ((coin_1_result === 'heads' && coin_id === 1) || 
             (coin_2_result === 'heads' && coin_id === 2)) {
             player_id = 1;
-            console.log(`You go first!`);
-            alert('You go first!');
         } else {
             player_id = 2;
-            console.log(`Opponent goes first!`);
-            alert('Opponent goes first!');
         }
 
         clearInterval(coin_polling);
@@ -229,17 +225,41 @@ async function handleGameState() {
         const current_status = await gamestate.getGameStateAttribute('status');
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         const winner = await gamestate.getGameStateAttribute('winner');
+        const ack_win = await player.getPlayerAttribute(player_id, 'ack_win');
+
+        if (is_game_over && await gamestate.getGameStateAttribute('player_1_assigned') && await gamestate.getGameStateAttribute('player_2_assigned')) {
+          await player.resetPlayerData();
+          await gamestate.resetGameStateData();
+          await gamestate.resetCoinData();
+          await gamestate.putGameStateAttribute('status', 'ready');
+          return;
+        }
+        
         if (is_game_over && !ack_win) {
-          control_button.textContent = 'Clear';
           if (winner === 'Draw') {
-              alert('Game Over! It\'s a draw!');
-          } else {
-              alert(`Game Over! ${winner} wins!`);
+            alert('The game is a draw.');
+          } else if (winner !== "") {
+            alert(`The winner is ${winner}.`);
           }
-          ack_win = true;
+          await player.putPlayerAttribute(player_id, 'ack_win', true);
           return;
         }
 
+        if (is_game_over && await player.getPlayerAttribute(1, 'ack_win') && await player.getPlayerAttribute(2, 'ack_win')) {
+          if (winner === 'Draw' || winner === "") {
+            control_button.textContent = 'Clear';
+            return;
+          }
+          if (await player.getPlayerAttribute(player_id, 'is_previous_winner')) {
+            player_id = 1;
+            gamestate.putGameStateAttribute('player_1_assigned', true);
+          } else {
+            player_id = 2;
+            gamestate.putGameStateAttribute('player_2_assigned', true);
+          }
+          return;
+        }
+        
         if (current_status === 'coin_flip') {
           let coin_1_result = await gamestate.getCoinAttribute('coin_1');
           let coin_2_result = await gamestate.getCoinAttribute('coin_2');
@@ -253,16 +273,21 @@ async function handleGameState() {
         if (current_status === 'playing') {
             control_button.textContent = 'Clear';
             control_button.disabled = false;
-            gameboard_polling = setInterval(renderCurrentBoard, 1000);
+            if (!gameboard_polling) {
+              gameboard_polling = setInterval(renderCurrentBoard, 1000);
+            }
             return;
         } 
 
         if (current_status === 'ready') {
+            renderEmptyBoard();
             control_button.textContent = 'Start';
             const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
             if (currentPlayer === player_id) {
                 control_button.disabled = false;
+                alert('You go first! Click "Start" to begin.');
             } else {
+                alert('Waiting for opponent to start the game...');
                 control_button.disabled = true;
             }
             return;
@@ -285,44 +310,15 @@ async function handleControlButtonClick(button_value) {
             await gamestate.resetGameStateData();
             await gamestate.resetCoinData();
             renderEmptyBoard();
-        } else if (button_value === 'Clear' && (winner !== "" && winner !== 'Draw')) {
-            replayAfterWin();
         }
     } catch (error) {
         console.error('Error handling control button click:', error);
     }
 }
 
-async function replayAfterWin() {
-    try {
-        const player_1_ack_win = await player.getPlayerAttribute(1, 'ack_win');
-        const player_2_ack_win = await player.getPlayerAttribute(2, 'ack_win');
-        const is_previous_winner = await player.getPlayerAttribute(player_id, 'is_previous_winner');
-        if (is_previous_winner) {
-          player_id = 1;
-          alert('Since you won, you get to go first.');
-        } else {
-            player_id = 2;
-            alert('Since you lost, your opponent goes first.');
-        }
-        await player.putPlayerAttribute(player_id, 'ack_win', true);
-        
-        if (player_1_ack_win && player_2_ack_win) {
-          await player.resetPlayerData();
-          await gamestate.resetGameStateData();
-          await gamestate.resetCoinData();
-          renderEmptyBoard();
-          gamestate.putGameStateAttribute('status', 'ready');
-        }
-    } catch (error) {
-        console.error('Error resetting game state and player data:', error);
-    }
-}
-
 control_button.addEventListener('click', (event) => {
     handleControlButtonClick(event.target.textContent);
 });
-
 
 /**
  * Resetes the gamestate, player and coin data on window close
@@ -379,7 +375,7 @@ function renderEmptyBoard(){
         console.error('Game board element not found.');
         return;
     }
-    boardElement.innerHTML = ''; // Clear previous board if any
+    boardElement.innerHTML = ''; 
 
     let index = 0;
     for(let row = 0; row < 4; row++){
@@ -388,7 +384,8 @@ function renderEmptyBoard(){
         for(let col = 0; col < 4; col++){
             const td = document.createElement('td');
             td.setAttribute('data-index', index);
-            td.textContent = ''; // initially empty
+            td.textContent = ''; 
+            td.classList.remove('winner'); 
             td.addEventListener('click', () => handleCellClick(td.getAttribute('data-index')));
             tr.appendChild(td);
             index++;
@@ -429,6 +426,7 @@ async function renderCurrentBoard() {
       });
 
       clearInterval(gameboard_polling);
+      gameboard_polling = null;
     }
   } catch (error) {
     console.error('Error rendering current board:', error);
