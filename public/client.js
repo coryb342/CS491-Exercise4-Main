@@ -57,7 +57,6 @@ const winning_combinations = [
 let coin_polling = null;
 let gamestate_polling = null;
 let gameboard_polling = null;
-let ack_win = false;
 
 
 // Game State Functions
@@ -225,8 +224,7 @@ async function handleGameState() {
         const current_status = await gamestate.getGameStateAttribute('status');
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         const winner = await gamestate.getGameStateAttribute('winner');
-        const ack_win = await player.getPlayerAttribute(player_id, 'ack_win');
-
+      
         if (is_game_over && await gamestate.getGameStateAttribute('player_1_assigned') && await gamestate.getGameStateAttribute('player_2_assigned')) {
           await player.resetPlayerData();
           await gamestate.resetGameStateData();
@@ -235,7 +233,7 @@ async function handleGameState() {
           return;
         }
         
-        if (is_game_over && !ack_win) {
+        if (is_game_over && !await player.getPlayerAttribute(player_id, 'ack_win')) {
           if (winner === 'Draw') {
             alert('The game is a draw.');
           } else if (winner !== "") {
@@ -285,10 +283,10 @@ async function handleGameState() {
             const currentPlayer = await gamestate.getGameStateAttribute('currentPlayer');
             if (currentPlayer === player_id) {
                 control_button.disabled = false;
-                alert('You go first! Click "Start" to begin.');
+                console.log('You go first! Press Start to begin.');
             } else {
-                alert('Waiting for opponent to start the game...');
                 control_button.disabled = true;
+                console.log('Waiting for opponent to start the game...');
             }
             return;
         }
