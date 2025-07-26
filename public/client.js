@@ -20,6 +20,9 @@ import * as gamestate from './gamestate_module.js';
   * @property {boolean} isGameOver - Indicates if the game is over.
   * @property {number} currentPlayer - The ID of the current player (1 or 2).
   * @property {string|null} winner - The winner of the game, or null if there is no winner yet.
+  * @property {Array} winning_combo - The winning combination of positions, if any.
+  * @property {boolean} player_1_assigned - Indicates if player 1 has been assigned.
+  * @property {boolean} player_2_assigned - Indicates if player 2 has been assigned.  
   * @requires gamestate_module.js
  */
 
@@ -219,6 +222,10 @@ async function isDraw() {
     return false;
 }
 
+/** * Handles the Game State.
+ * @returns {Promise<void>} - A promise that resolves when the game state is handled.
+ * @throws {Error} - If there is an error during the game state handling process.
+ */
 async function handleGameState() {
     try {
         const current_status = await gamestate.getGameStateAttribute('status');
@@ -296,6 +303,11 @@ async function handleGameState() {
     }
 }
 
+/** * Handles the control button click event.
+ * @param {string} button_value - The value of the button that was clicked.
+ * @returns {Promise<void>} - A promise that resolves when the button click is handled.
+ * @throws {Error} - If there is an error during the button click handling process.
+ */
 async function handleControlButtonClick(button_value) {
     try {
         const winner = await gamestate.getGameStateAttribute('winner');
