@@ -333,15 +333,15 @@ control_button.addEventListener('click', (event) => {
 /**
  * Resetes the gamestate, player and coin data on window close
  */
-addEventListener('beforeunload', async (event) => {
-    try {
-        await player.resetPlayerData();
-        await gamestate.resetGameStateData();
-        await gamestate.resetCoinData();
-        console.log('Game state and player data reset successfully.');  
-    } catch (error) {
-        console.error('Error resetting game state and player data:', error);
-    }
+addEventListener('beforeunload', (event) => {
+  try {
+    navigator.sendBeacon('/player/reset');
+    navigator.sendBeacon('/gamestate/reset');
+    navigator.sendBeacon('/coin/reset');
+    console.log('Resetting game data....hopefully');
+  } catch (error) {
+    console.error('Nope, didnt work!:', error);
+  }
 });
 
 
@@ -408,6 +408,10 @@ function renderEmptyBoard(){
 
 }
 
+/** * Renders the current state of the game board.
+ * @returns {Promise<void>} - A promise that resolves when the current board is rendered.
+ * @throws {Error} - If there is an error during the rendering process.
+ */
 async function renderCurrentBoard() {
   try {
     const winner = await gamestate.getGameStateAttribute('winner');

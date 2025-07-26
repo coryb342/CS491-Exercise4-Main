@@ -47,6 +47,42 @@ app.put('/player/:id', (req, res) => {
   });
 })
 
+/** Resets the player data for both players.
+ * @returns {Promise<void>} - A promise that resolves when the player data is reset.
+ * @throws {Error} - If there is an error during the reset process.
+ */
+app.post('/player/reset', (req, res) => {
+  const player_1 = {
+    "is_previous_winner": false,
+    "player_icon": "O",
+    "player_name": "Player 1",
+    "player_held_positions": [],
+    "ack_win": false
+  };
+  const player_2 = {
+    "is_previous_winner": false,
+    "player_icon": "X",
+    "player_name": "Player 2",
+    "player_held_positions": [],
+    "ack_win": false
+  };
+  const file_path_1 = path.join(__dirname, 'player_1.json');
+  const file_path_2 = path.join(__dirname, 'player_2.json');
+  fs.writeFile(file_path_1, JSON.stringify(player_1), (err) => {
+    if (err) {
+      console.error('Error writing player 1 file:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+    fs.writeFile(file_path_2, JSON.stringify(player_2), (err) => {
+      if (err) {
+        console.error('Error writing player 2 file:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+      res.status(200).send('Player data reset successfully');
+    });
+  });
+});
+
 //Coin Endpoints
 /** Gets the current coin data.
  * @returns {Promise<Object>} - A promise that resolves to the coin data.
@@ -78,6 +114,25 @@ app.put('/coin', (req, res) => {
   });
 });
 
+/** Resets the coin data.
+ * @returns {Promise<void>} - A promise that resolves when the coin data is reset.
+ * @throws {Error} - If there is an error during the reset process.
+ */
+app.post('/coin/reset', (req, res) => {
+  const coin_data = {
+    "coin_1": null,
+    "coin_2": null
+  };
+  const file_path = path.join(__dirname, 'coin.json');
+  fs.writeFile(file_path, JSON.stringify(coin_data), (err) => {
+    if (err) {
+      console.error('Error writing coin file:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+    res.status(200).send('Coin data reset successfully');
+  });
+}); 
+
 //Game State Endpoints
 /** Gets the current game state data.
  * @returns {Promise<Object>} - A promise that resolves to the game state data.
@@ -108,6 +163,31 @@ app.put('/gamestate', (req, res) => {
     res.status(200).send('Game state updated successfully');
   });
 });
+
+/** Resets the game state data.   
+ * @param {Object} gamestate_data - The game state data to reset. 
+ * @return {Promise<string>} - A promise that resolves to a success message.
+ * @throws {Error} - If there is an error during the reset process.
+ * */
+app.post('/gamestate/reset', (req, res) => {
+  const gamestate_data = {
+    "status": "coin_flip",
+    "isGameOver": false,
+    "currentPlayer": 1,
+    "winner": "",
+    "winning_combo": [],
+    "player_1_assigned": false,
+    "player_2_assigned": false
+  };
+  const file_path = path.join(__dirname, 'gamestate.json');
+  fs.writeFile(file_path, JSON.stringify(gamestate_data), (err) => {
+    if (err) {
+      console.error('Error writing game state file:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+    res.status(200).send('Game state data reset successfully');
+  });
+}); 
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
