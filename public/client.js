@@ -56,6 +56,7 @@ const winning_combinations = [
 
 let coin_polling = null;
 let gamestate_polling = null;
+let gameboard_polling = null;
 
 
 
@@ -186,6 +187,7 @@ async function isWin() {
                 await player.putPlayerAttribute(player_id, 'is_previous_winner', true);
                 await gamestate.putGameStateAttribute('isGameOver', true);
                 await gamestate.putGameStateAttribute('winner', winner);
+                await gamestate.putGameStateAttribute('winning_combo', combination);
 
                 // Highlight winning cells
                 combination.forEach(index => {
@@ -228,14 +230,13 @@ async function handleGameState() {
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         const winner = await gamestate.getGameStateAttribute('winner');
         if (is_game_over) {
-          renderCurrentBoard();
-          clearInterval(gamestate_polling);
           control_button.textContent = 'Clear';
           if (winner === 'Draw') {
               alert('Game Over! It\'s a draw!');
           } else {
               alert(`Game Over! ${winner} wins!`);
           }
+          clearInterval(gamestate_polling);
           return;
         }
 
@@ -250,7 +251,6 @@ async function handleGameState() {
         }
 
         if (current_status === 'playing') {
-            renderCurrentBoard();
             control_button.textContent = 'Clear';
             control_button.disabled = false;
             return;
@@ -391,41 +391,33 @@ function renderEmptyBoard(){
 
 }
 
-async function renderCurrentBoard(){
+async function renderCurrentBoard() {
   try {
+    const winner = await gamestate.getGameStateAttribute('winner');
+    const winning_combo = await gamestate.getGameStateAttribute('winning_combo');
     const player_1_positions = await player.getPlayerAttribute(1, 'player_held_positions');
     const player_2_positions = await player.getPlayerAttribute(2, 'player_held_positions');
 
-    const boardElement = document.getElementById('game-board');
+    for (let index = 0; index < 16; index++) {
+      const cell = document.querySelector(`[data-index="${index}"]`);
+      if (!cell) continue;
 
-    if (!boardElement) {
-        console.error('Game board element not found.');
-        return;
+      if (player_1_positions.includes(String(index))) {
+        cell.textContent = await player.getPlayerAttribute(1, 'player_icon');
+      } else if (player_2_positions.includes(String(index))) {
+        cell.textContent = await player.getPlayerAttribute(2, 'player_icon');
+      } else {
+        cell.textContent = '';
+      }
     }
-    boardElement.innerHTML = ''; // Clear previous board if any
-
-    let index = 0;
-    for(let row = 0; row < 4; row++){
-        const tr = document.createElement('tr');
-
-        for(let col = 0; col < 4; col++){
-            const td = document.createElement('td');
-            td.setAttribute('data-index', index);
-
-            if(player_1_positions.includes(String(index))){
-                td.textContent = await player.getPlayerAttribute(1, 'player_icon');
-            } else if(player_2_positions.includes(String(index))){
-                td.textContent = await player.getPlayerAttribute(2, 'player_icon');
-            } else {
-                td.textContent = ''; // empty cell
-            }
-            td.addEventListener('click', () => handleCellClick(td.getAttribute('data-index')));
-            tr.appendChild(td);
-            index++;
+    if (winner && winning_combo.length > 0) {
+      winning_combo.forEach(index => {
+        const cell = document.querySelector(`[data-index="${index}"]`);
+        if (cell) {
+          cell.classList.add('winner');
         }
-
-        boardElement.appendChild(tr);
-        }
+      });
+    }
   } catch (error) {
     console.error('Error rendering current board:', error);
   }
@@ -433,6 +425,7 @@ async function renderCurrentBoard(){
 
 document.addEventListener('DOMContentLoaded', () => {
     renderEmptyBoard();
+    gameboard_polling = setInterval(renderCurrentBoard, 1000);
     gamestate_polling = setInterval(handleGameState, 1000);
     console.log('Game state polling started.');
 });
