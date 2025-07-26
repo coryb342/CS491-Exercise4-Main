@@ -57,7 +57,7 @@ const winning_combinations = [
 let coin_polling = null;
 let gamestate_polling = null;
 let gameboard_polling = null;
-
+let ack_win = false;
 
 
 // Game State Functions
@@ -229,14 +229,14 @@ async function handleGameState() {
         const current_status = await gamestate.getGameStateAttribute('status');
         const is_game_over = await gamestate.getGameStateAttribute('isGameOver');
         const winner = await gamestate.getGameStateAttribute('winner');
-        if (is_game_over) {
+        if (is_game_over && !ack_win) {
           control_button.textContent = 'Clear';
           if (winner === 'Draw') {
               alert('Game Over! It\'s a draw!');
           } else {
               alert(`Game Over! ${winner} wins!`);
           }
-          clearInterval(gamestate_polling);
+          ack_win = true;
           return;
         }
 
@@ -253,6 +253,7 @@ async function handleGameState() {
         if (current_status === 'playing') {
             control_button.textContent = 'Clear';
             control_button.disabled = false;
+            gameboard_polling = setInterval(renderCurrentBoard, 1000);
             return;
         } 
 
@@ -283,7 +284,6 @@ async function handleControlButtonClick(button_value) {
             await player.resetPlayerData();
             await gamestate.resetGameStateData();
             await gamestate.resetCoinData();
-            gamestate_polling = setInterval(handleGameState, 1000);
             renderEmptyBoard();
         } else if (button_value === 'Clear' && (winner !== "" && winner !== 'Draw')) {
             replayAfterWin();
@@ -295,15 +295,25 @@ async function handleControlButtonClick(button_value) {
 
 async function replayAfterWin() {
     try {
+        const player_1_ack_win = await player.getPlayerAttribute(1, 'ack_win');
+        const player_2_ack_win = await player.getPlayerAttribute(2, 'ack_win');
         const is_previous_winner = await player.getPlayerAttribute(player_id, 'is_previous_winner');
-        is_previous_winner ? player_id = 1 : player_id = 2;
-        player_id = 1 ? alert('Since you won, you get to go first.') : alert('Since you lost, your opponent goes first.');
-        await player.resetPlayerData();
-        await gamestate.resetGameStateData();
-        await gamestate.resetCoinData();
-        renderEmptyBoard();
-        gamestate_polling = setInterval(handleGameState, 1000);
-        gamestate.putGameStateAttribute('status', 'ready');
+        if (is_previous_winner) {
+          player_id = 1;
+          alert('Since you won, you get to go first.');
+        } else {
+            player_id = 2;
+            alert('Since you lost, your opponent goes first.');
+        }
+        await player.putPlayerAttribute(player_id, 'ack_win', true);
+        
+        if (player_1_ack_win && player_2_ack_win) {
+          await player.resetPlayerData();
+          await gamestate.resetGameStateData();
+          await gamestate.resetCoinData();
+          renderEmptyBoard();
+          gamestate.putGameStateAttribute('status', 'ready');
+        }
     } catch (error) {
         console.error('Error resetting game state and player data:', error);
     }
@@ -417,6 +427,8 @@ async function renderCurrentBoard() {
           cell.classList.add('winner');
         }
       });
+
+      clearInterval(gameboard_polling);
     }
   } catch (error) {
     console.error('Error rendering current board:', error);

@@ -55,12 +55,14 @@ export async function resetPlayerData() {
       "player_icon": "O",
       "player_name": "Player 1",
       "player_held_positions": [],
+      "ack_win": false
     };
     const player_2 = {
       "is_previous_winner": false,
       "player_icon": "X",
       "player_name": "Player 2",
       "player_held_positions": [],
+      "ack_win": false
     };
     await putPlayerData(1, player_1);
     await putPlayerData(2, player_2);
